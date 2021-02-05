@@ -24,8 +24,7 @@ function App() {
         // フード一覧ページ
         <Route
           exact
-          path="/foods"
-        >
+          path="/foods">
           <Foods />
         </Route>
         // 注文ページ
@@ -34,6 +33,15 @@ function App() {
           path="/orders">
           <Orders />
         </Route>
+        <Route
+         exact
+         path="/restaurants/:restaurantsId/foods"
+         render={({ match }) =>
+           <Foods
+             match={match}
+           />
+         }
+         />
       </Switch>
     </Router>
   );
