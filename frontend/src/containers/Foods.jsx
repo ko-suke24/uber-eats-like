@@ -1,13 +1,14 @@
-import React, { Fragment, useReducer, useEffect } from 'react';
+// useStateを新たにimport
+import React, { Fragment, useReducer, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Link } from "react-router-dom";
 
-
 // components
 import { LocalMallIcon } from '../components/Icons';
-// --- ここから追加 ---
 import { FoodWrapper } from '../components/FoodWrapper';
 import Skeleton from '@material-ui/lab/Skeleton';
+// --- ここから追加 ---
+import { FoodOrderDialog } from '../components/FoodOrderDialog';
 // --- ここまで追加 ---
 
 // reducers
@@ -20,12 +21,9 @@ import {
 // apis
 import { fetchFoods } from '../apis/foods';
 
-// --- ここから追加 ---
 // images
 import MainLogo from '../images/logo.png';
 import FoodImage from '../images/food-image.jpg';
-// --- ここまで追加 ---
-
 
 // constants
 import { COLORS } from '../style_constants';
@@ -45,7 +43,6 @@ const ColoredBagIcon = styled(LocalMallIcon)`
   color: ${COLORS.MAIN};
 `;
 
-// --- ここから追加 ---
 const MainLogoImage = styled.img`
   height: 90px;
 `
@@ -60,12 +57,20 @@ const FoodsList = styled.div`
 const ItemWrapper = styled.div`
   margin: 16px;
 `;
-// --- ここまで追加 ---
 
 export const Foods = ({
   match
 }) => {
   const [foodsState, dispatch] = useReducer(foodsReducer, foodsInitialState);
+
+  // --- ここから追加 ---
+  const initialState = {
+    isOpenOrderDialog: false,
+    selectedFood: null,
+    selectedFoodCount: 1,
+  }
+  const [state, setState] = useState(initialState);
+  // --- ここまで追加 ---
 
   useEffect(() => {
     dispatch({ type: foodsActionTyps.FETCHING });
@@ -82,7 +87,6 @@ export const Foods = ({
 
   return (
     <Fragment>
-      // --- ここから修正 ---
       <HeaderWrapper>
         <Link to="/restaurants">
           <MainLogoImage src={MainLogo} alt="main logo" />
@@ -110,14 +114,29 @@ export const Foods = ({
               <ItemWrapper key={food.id}>
                 <FoodWrapper
                   food={food}
-                  onClickFoodWrapper={(food) => console.log(food)}
+                  // フードitemクリック時にsetStateする
+                  onClickFoodWrapper={(food) => setState({
+                    ...state,
+                    selectedFood: food,
+                    isOpenOrderDialog: true,
+                  })}
                   imageUrl={FoodImage}
                 />
               </ItemWrapper>
             )
         }
       </FoodsList>
-      // --- ここまで修正 ---
+      {
+        state.isOpenOrderDialog &&
+          <FoodOrderDialog
+            food={state.selectedFood}
+            isOpen={state.isOpenOrderDialog}
+            onClose={() => setState({
+              ...state,
+              isOpenOrderDialog: false,
+            })}
+          />
+      }
     </Fragment>
   )
 }
